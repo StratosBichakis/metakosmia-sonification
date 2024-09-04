@@ -8,7 +8,7 @@ var max = 16380;
 var step = 0.5;
 var last_bend_val = 0;
 var last_gate = 0;
-var idleTime = 4*60;
+var idleTime = 12;//4*60;
 
 var updateSubj = { |val|
 	var subj = Subject.topics[\zoom];
@@ -28,16 +28,14 @@ var bend_func = { |val, press, gate|
 	step;
 };
 
-var idle_routine;
-
 var ribbon =  Environment.with(
 	\controlVal-> 0.5,
 	\bendSpec -> ControlSpec(min, max),
 	\gate -> 0,
 	\bend -> 0,
 	\control->0,
-	\onGateFunc->{|env| ribbon.idleOffFunc.value;idle_routine.stop; print.if{env.gate.postln}},
-	\offGateFunc->{|env| idle_routine.reset.play; print.if{env.gate.postln}},
+	\onGateFunc->{|env| env.idleOffFunc.value;env.idleRoutine.stop; print.if{env.gate.postln}},
+	\offGateFunc->{|env| env.idleRoutine.reset.play; print.if{env.gate.postln}},
 	\bendFunc->{|env| env.controlVal = bend_func.(env.bend, env.control, env.gate); print.if{env.controlVal.postln;}},//{|env| print.if{env.bend.postln}},
 	\pressureFunc->nil;//{|env| env.control.postln},
 	\idleOnFunc -> {
@@ -78,7 +76,7 @@ ribbon.use{ |env|
 	MIDIFunc.bend({|val|
 		env.bend = env.bendSpec.unmap(val);env.bendFunc.value}, chan:0);
 	MIDIFunc.cc({|val| env.control = \midi.asSpec.unmap(val);env.pressureFunc.value },chan:0, ccNum:0);
-	idle_routine = Routine.new(
+	env.idleRoutine = Routine.new(
 	{
 		// env.idleOffFunc !? env.idleOffFunc.value;
 		idleTime.wait;
