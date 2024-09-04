@@ -25,7 +25,7 @@ p.player.putAll((
 	}),
 	seqAtBoot: r{
 		s.sync;
-		// 5.wait;
+		p.ribbon.idleOnFunc.value;
 		p.player.sequential.routine.reset.(0);
 		p.player.sequential.routine.play;
 	},

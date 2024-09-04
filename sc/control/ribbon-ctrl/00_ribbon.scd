@@ -81,7 +81,7 @@ ribbon.use{ |env|
 		// env.idleOffFunc !? env.idleOffFunc.value;
 		idleTime.wait;
 		env.idleOnFunc.value;
-	}, 0);
+	});
 };
 
 defer{
