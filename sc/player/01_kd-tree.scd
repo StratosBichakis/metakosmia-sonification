@@ -20,16 +20,16 @@ getIdsFromfilterSwitchesFunc = {
 
 e.filter.use{ |env|
 	env.obs = Observer(\kdtree_filter, Subject.topics[\filterChange], { |state|
-		var verbose = true;
+		var verbose = false;
 		verbose.if{
 			state.postln;
 		};
 		(state.epochFilterSwitch != env.last_e_fs).if{
-			".".postln;
+			verbose.if{".".postln};
 			env.last_e_fs = state.epochFilterSwitch.copy;
 		};
 		(state.todFilterSwitch != env.last_t_fs).if{
-			"*".postln;
+			verbose.if{"*".postln};
 			env.last_t_fs = state.todFilterSwitch.copy;
 		};
 	});
