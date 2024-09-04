@@ -1,7 +1,7 @@
 /*00_fixed_duration.scd*/
 
 var fixedDurIds = {
-	var dur = 0.07;
+	var dur = 0.1;
 /*	var e_dur = [ //[min, sec, millis]
 		[0, 0, 0],
 		[0, 0, 0],

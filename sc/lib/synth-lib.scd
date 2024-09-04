@@ -46,9 +46,17 @@ var e = Environment.with(
 			var data16d = BufRd.kr(16, dataBuf16d);
 
 			var dur = rate.abs.reciprocal*BufRateScale.ir(soundBufnum)*BufSamples.ir(soundBufnum)/SampleRate.ir;
-			var doneDur = Line.ar(0, BufSamples.ir(soundBufnum), 3/**dur*/, doneAction: Done.freeSelf);
-			var env = EnvGen.kr(Env([0, 1.2, 0.7, 0.2], [0.05, 1.2, 4], \sin));
+			var doneDur = Line.ar(0, BufSamples.ir(soundBufnum), 5/**dur*/, doneAction: Done.freeSelf);
+			var env_l0 = [0, 1].asSpec.map(data16d[4]);
+			var env_l1 = (1.5*data16d[2]).clip(1.1, 1.4);
+			var env_l2 = data16d[3].clip(0.8, 0.5);
+			var env_l3 = data16d[5].clip(0.0, 0.5);
+			var env_t0 = (0.2*data16d[6]).clip(0.0, 0.2);
+			var env_t1 = (2*data16d[7]).clip(0.2, 1.5);
+			// var env_t2 = data16d[8].clip(0.6, 12);
 
+			// var env = EnvGen.kr(Env([0, 1.2, 0.7, 0.2], [0.05, 1.2, 4], \sin));
+			var env = EnvGen.kr(Env([env_l0, env_l1, env_l2, env_l3], [env_t0, env_t1, 4], \sin));
 			var windowSize = 2.pow(13);
 			var oct = [1, 5].asSpec.map(data16d[0]);//2.1234;
 			var offset = [0, BufSamples.ir(soundBufnum)/5].asSpec.map(data16d[10]+data16d[1]*0.5);
@@ -56,27 +64,27 @@ var e = Environment.with(
 			var kernel_sig = PlayBuf.ar(1, bufnum, 1.0*BufRateScale.kr(bufnum), 1, 0);
 
 			var phs;
-			var conv_mix = [-0.2, 0.4].asSpec.map(data16d[0]);
+			var conv_mix = [-0.2, 0.2, 2].asSpec.map(data16d[0]);
 
 			rate = rate*[0.4, 2.6].asSpec.map(data16d[11]);
 			phs = Sweep.ar(1, rate: rate*BufRateScale.ir(soundBufnum)*SampleRate.ir)+offset;
 			sig = BufRd.ar(1, soundBufnum, phs, 0);
 			chain = FFT(bufnum, sig*3, hop: 0.5, wintype: 0, winsize: windowSize);
 
-			chain  = PV_BinShift(chain, 0.28, windowSize / 2.pow(10 - oct), interp: 1);
-			chain = PV_BrickWall(chain, 0.003);
+			chain  = PV_BinShift(chain, [0.325, 0.34, -2].asSpec.map(data16d[7]), windowSize / 2.pow(10 - oct), interp: 1);
+			chain = PV_BrickWall(chain, 0.006);
 			// chain = PV_BrickWall(chain, -0.92);
-			chain = PV_SpectralEnhance(chain, 0.7, 1.012, 4);
+			chain = PV_SpectralEnhance(chain, [0.7, 0].asSpec.map(data16d[14]), [1.012, 1.2].asSpec.map(data16d[15]), 4);
 			chain = PV_MagMulAdd(chain, 0.98); //TODO: Reduce dominant frequency amplitude
 
 			chain = PV_MagSmooth(chain, env);
-			chain = PV_MagSmear(chain, 2.pow(2));
-			chain = Select.kr(data16d[12]>0.6, [chain, PV_MagNoise(chain)]);
+			chain = PV_MagSmear(chain, 2.pow([1, 2, -3].asSpec.map(data16d[8])));
+			chain = Select.kr(data16d[12]>0.4, [chain, PV_MagNoise(chain)]);
 			// chain = PV_BrickWall(chain, -0.708);
 			// chain = PV_BrickWall(chain, 0.016);
 			// chain = PV_Freeze(chain, ToggleFF.ar(Impulse.ar(dur.reciprocal, -0.08)).poll);
 			sig = IFFT(chain);
-			sig = XFade2.ar(sig, Convolution.ar(sig, 8*kernel_sig, 2.pow(12)), [conv_mix, (conv_mix.neg)]+0.3) ;
+			sig = XFade2.ar(sig, Convolution.ar(sig, [18, 10, -2].asSpec.map(data16d[8]).dbamp*kernel_sig, 2.pow(12)), [conv_mix, (conv_mix.neg)]+0.3) ;
 			Out.ar(out, (10.dbamp*sig.tanh)*(-12.dbamp));
 			// Out.ar(out, ([-10, 10, -2].asSpec.map(data16d[8]).dbamp*sig.tanh)*(-12.dbamp));
 		}).add;//(s,[\out, 0, \bufnum, b.bufnum, \soundBufnum, c.bufnum, \rate, 0.72]);
