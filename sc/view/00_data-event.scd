@@ -38,6 +38,7 @@ Event.addEventType(\biosphera_data, { |env|
 		~type = \note;
 		~instrument = \smear_experimental;
 		~soundBufnum = p.buffers.soundBuf[~epoch-1];
+		~dropBufnum = p.buffers.soundBuf[0];
 		currentEnvironment.play;
 	}.play;
 }, (bufnum: p.buffers.fftBuf, dataBuf16d: p.buffers.dataBuf16d)++(id:0, day: 0, epoch:1));

@@ -41,7 +41,7 @@ var e = Environment.with(
 			Out.ar(out, sig.dup);
 		}).add;//(s,[\out, 0, \bufnum, b.bufnum, \soundBufnum, c.bufnum, \rate, 0.72]);
 
-		SynthDef(\smear_experimental, { | out = 0, bufnum = 0, soundBufnum = 2, rate = 1, dataBuf16d, epoch = 1|
+		SynthDef(\smear_experimental, { | out = 0, bufnum = 0, dropBufnum, soundBufnum = 2, rate = 1, dataBuf16d, epoch = 1|
 			var sig, chain;
 			var data16d = BufRd.kr(16, dataBuf16d);
 
@@ -62,7 +62,7 @@ var e = Environment.with(
 			var end = [BufSamples.ir(soundBufnum)/6, BufSamples.ir(soundBufnum), BufSamples.ir(soundBufnum), BufSamples.ir(soundBufnum), BufSamples.ir(soundBufnum), BufSamples.ir(soundBufnum)/7];
 			var offset = Select.kr(epoch-1, [0,  end, 2].asSpec.map(data16d[10]+data16d[1]*0.5));
 			// var kernel_phs = Sweep.ar(1, rate: BufRateScale.ir(soundBufnum)*SampleRate.ir);
-			var kernel_sig = PlayBuf.ar(1, bufnum, 1.0*BufRateScale.kr(bufnum), 1, 0);
+			var kernel_sig = PlayBuf.ar(1, dropBufnum, [1.2, 0.2, 3].asSpec.map(data16d[5])*BufRateScale.kr(dropBufnum), 1, 0);
 
 			var phs;
 			var conv_mix = [-0.2, 0.2, 2].asSpec.map(data16d[0]);
@@ -85,7 +85,7 @@ var e = Environment.with(
 			// chain = PV_BrickWall(chain, 0.016);
 			// chain = PV_Freeze(chain, ToggleFF.ar(Impulse.ar(dur.reciprocal, -0.08)).poll);
 			sig = IFFT(chain);
-			sig = XFade2.ar(sig, Convolution.ar(sig, [18, 10, -2].asSpec.map(data16d[8]).dbamp*kernel_sig, 2.pow(12)), [conv_mix, (conv_mix.neg)]+0.3) ;
+			sig = XFade2.ar(sig, Convolution.ar(sig, [20, 10, -2].asSpec.map(data16d[8]).dbamp*kernel_sig, 2.pow(12)), [conv_mix, (conv_mix.neg)]+0.3) ;
 			Out.ar(out, (10.dbamp*sig.tanh)*(-12.dbamp));
 			// Out.ar(out, ([-10, 10, -2].asSpec.map(data16d[8]).dbamp*sig.tanh)*(-12.dbamp));
 		}).add;//(s,[\out, 0, \bufnum, b.bufnum, \soundBufnum, c.bufnum, \rate, 0.72]);
