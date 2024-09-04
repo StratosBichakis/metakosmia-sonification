@@ -41,14 +41,14 @@ var e = Environment.with(
 			Out.ar(out, sig.dup);
 		}).add;//(s,[\out, 0, \bufnum, b.bufnum, \soundBufnum, c.bufnum, \rate, 0.72]);
 
-		SynthDef(\smear_experimental, { | out = 0, bufnum = 0, soundBufnum = 2, rate = 1, dataBuf16d|
+		SynthDef(\smear_experimental, { | out = 0, bufnum = 0, soundBufnum = 2, rate = 1, dataBuf16d, epoch = 1|
 			var sig, chain;
 			var data16d = BufRd.kr(16, dataBuf16d);
 
 			var dur = rate.abs.reciprocal*BufRateScale.ir(soundBufnum)*BufSamples.ir(soundBufnum)/SampleRate.ir;
 			var doneDur = Line.ar(0, BufSamples.ir(soundBufnum), 5/**dur*/, doneAction: Done.freeSelf);
 			var env_l0 = [0, 1].asSpec.map(data16d[4]);
-			var env_l1 = (1.5*data16d[2]).clip(1.1, 1.4);
+			var env_l1 = (0.4*data16d[2]+1).clip(1.1, 1.4);
 			var env_l2 = data16d[3].clip(0.8, 0.5);
 			var env_l3 = data16d[5].clip(0.0, 0.5);
 			var env_t0 = (0.2*data16d[6]).clip(0.0, 0.2);
@@ -59,7 +59,8 @@ var e = Environment.with(
 			var env = EnvGen.kr(Env([env_l0, env_l1, env_l2, env_l3], [env_t0, env_t1, 4], \sin));
 			var windowSize = 2.pow(13);
 			var oct = [1, 5].asSpec.map(data16d[0]);//2.1234;
-			var offset = [0, BufSamples.ir(soundBufnum)/5].asSpec.map(data16d[10]+data16d[1]*0.5);
+			var end = [BufSamples.ir(soundBufnum)/6, BufSamples.ir(soundBufnum), BufSamples.ir(soundBufnum), BufSamples.ir(soundBufnum), BufSamples.ir(soundBufnum), BufSamples.ir(soundBufnum)/7];
+			var offset = Select.kr(epoch-1, [0,  end, 2].asSpec.map(data16d[10]+data16d[1]*0.5));
 			// var kernel_phs = Sweep.ar(1, rate: BufRateScale.ir(soundBufnum)*SampleRate.ir);
 			var kernel_sig = PlayBuf.ar(1, bufnum, 1.0*BufRateScale.kr(bufnum), 1, 0);
 
