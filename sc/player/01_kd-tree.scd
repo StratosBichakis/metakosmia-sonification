@@ -1,21 +1,26 @@
 /*00_kd-tree.scd*/
-var getIdsFromfilterSwitchesFunc;
+var getIdsFromEpochSwitchFunc, getIdsFromTodSwitchFunc, hasSwitchedEpochIds = false, hasSwitchedTodIds = false;
 
 var e = Environment.with(
 	\server -> s,
 	\filter->Environment.with(
 		\last_e_fs->List[1, 1, 1, 1, 1, 1],
 		\last_t_fs->List[1, 1, 1, 1, 1, 1, 1, 1],
+		\epoch_ids -> p.context.epochLabelList,
+		\tod_ids -> p.context.timeOfDayLabelList,
 	).know_(true),
 );
 e.know_(true);
+p.player.add(\kdtree->e);
 
-getIdsFromfilterSwitchesFunc = {
+getIdsFromEpochSwitchFunc = {
 	var e_fl = p.context.epochLabelSet.copy;
+	e.filter.epoch_ids = p.context.epochLabelList.selectIndices{|item| e_fl.putEach(p.touchOSC.epochFilterSwitch.selectIndices{|switch| switch!=1}, nil).includes(item)};
+};
+
+getIdsFromTodSwitchFunc = {
 	var t_fl = p.context.timeOfDayLabelSet.copy;
-	var epoch_ids = p.context.epochLabelList.selectIndices{|item| e_fl.putEach(p.touchOSC.epochFilterSwitch.selectIndices{|switch| switch!=1}, nil).includes(item)};
-	var tod_ids = p.context.timeOfDayLabelList.selectIndices{|item| t_fl.putEach(p.touchOSC.todFilterSwitch.selectIndices{|switch| switch!=1}, nil).includes(item)};
-	epoch_ids.sect(tod_ids);
+	e.filter.tod_ids = p.context.timeOfDayLabelList.selectIndices{|item| t_fl.putEach(p.touchOSC.todFilterSwitch.selectIndices{|switch| switch!=1}, nil).includes(item)};
 };
 
 e.filter.use{ |env|
@@ -26,16 +31,16 @@ e.filter.use{ |env|
 		};
 		(state.epochFilterSwitch != env.last_e_fs).if{
 			verbose.if{".".postln};
+			hasSwitchedEpochIds = false;
 			env.last_e_fs = state.epochFilterSwitch.copy;
 		};
 		(state.todFilterSwitch != env.last_t_fs).if{
 			verbose.if{"*".postln};
+			hasSwitchedTodIds = false;
 			env.last_t_fs = state.todFilterSwitch.copy;
 		};
 	});
 };
-
-p.player.add(\kdtree->e);
 
 e.use{ | env |
 	var size = 60;
@@ -48,7 +53,10 @@ e.use{ | env |
 			var weights = Array.interpolation(size).normalizeSum;
 			var filtered_ids;
 			inf.do{ |cnt|
-				filtered_ids = getIdsFromfilterSwitchesFunc.value;
+				
+				hasSwitchedEpochIds = CallOnlyOnce(hasSwitchedEpochIds, getIdsFromEpochSwitchFunc);
+				hasSwitchedTodIds = CallOnlyOnce(hasSwitchedTodIds, getIdsFromTodSwitchFunc);
+				filtered_ids = env.filter.epoch_ids.sect(env.filter.tod_ids);
 
 				if(filtered_ids.includes(id).not){
 					var index = filtered_ids.indexInBetween(id);

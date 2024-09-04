@@ -67,7 +67,7 @@ e.use{ |env|
 				// ".".post;
 				(type: \biosphera_data, id: id).play;
 				s.sync;
-				0.07.wait;
+				0.1.wait;
 			};
 		}
 	};
