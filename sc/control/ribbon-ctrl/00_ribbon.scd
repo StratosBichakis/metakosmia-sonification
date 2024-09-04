@@ -8,7 +8,7 @@ var max = 16380;
 var step = 0.5;
 var last_bend_val = 0;
 var last_gate = 0;
-var idleTime = 12;//4*60;
+var idleTime = 2*60;
 
 var updateSubj = { |val|
 	var subj = Subject.topics[\zoom];
