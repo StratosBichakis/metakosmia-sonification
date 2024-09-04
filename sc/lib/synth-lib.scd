@@ -72,7 +72,7 @@ var e = Environment.with(
 			sig = BufRd.ar(1, soundBufnum, phs, 0);
 			chain = FFT(bufnum, sig*3, hop: 0.5, wintype: 0, winsize: windowSize);
 
-			chain  = PV_BinShift(chain, [0.325, 0.34, -2].asSpec.map(data16d[7]), windowSize / 2.pow(10 - oct), interp: 1);
+			chain  = PV_BinShift(chain, [0.25, 0.34, -2].asSpec.map(data16d[7]), windowSize / 2.pow(10 - oct), interp: 1);
 			chain = PV_BrickWall(chain, 0.006);
 			// chain = PV_BrickWall(chain, -0.92);
 			chain = PV_SpectralEnhance(chain, [0.7, 0].asSpec.map(data16d[14]), [1.012, 1.2].asSpec.map(data16d[15]), 4);
@@ -85,7 +85,7 @@ var e = Environment.with(
 			// chain = PV_BrickWall(chain, 0.016);
 			// chain = PV_Freeze(chain, ToggleFF.ar(Impulse.ar(dur.reciprocal, -0.08)).poll);
 			sig = IFFT(chain);
-			sig = XFade2.ar(sig, Convolution.ar(sig, [16, 10, -2].asSpec.map(data16d[8]).dbamp*kernel_sig, 2.pow(12)), [conv_mix, (conv_mix.neg)]+0.3) ;
+			sig = XFade2.ar(sig, Convolution.ar(sig, [19, 10, -2].asSpec.map(data16d[8]).dbamp*kernel_sig, 2.pow(12)), [conv_mix, (conv_mix.neg)]+0.3) ;
 			Out.ar(out, (10.dbamp*sig.tanh)*(-12.dbamp));
 			// Out.ar(out, ([-10, 10, -2].asSpec.map(data16d[8]).dbamp*sig.tanh)*(-12.dbamp));
 		}).add;//(s,[\out, 0, \bufnum, b.bufnum, \soundBufnum, c.bufnum, \rate, 0.72]);
