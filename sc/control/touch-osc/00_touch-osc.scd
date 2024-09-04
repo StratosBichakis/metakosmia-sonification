@@ -39,10 +39,10 @@ thisProcess.openUDPPort(8000);
 touchOSC.use{ | env |
 	var subj = Subject.topics[\filterChange];
 	~todLabelList.do{|label, i|
-		OSCFunc({|msg| var val = msg.drop(1).unbubble.asInteger;env.todFilterSwitch.put(i, val);subj.notify;forward_addr.sendMsg(*msg);p.ribbon.idleOffFunc.value;p.ribbon.idleRoutine.reset.play;}, '/sonify/filter/timeofday/'++label);
+		OSCFunc({|msg| var val = msg.drop(1).unbubble.asInteger;env.todFilterSwitch.put(i, val);subj.notify;forward_addr.sendMsg(*msg);p.ribbon.idleOffFunc.value;p.ribbon.idleRoutine.stop.reset.play;}, '/sonify/filter/timeofday/'++label);
 	};
 	~epochLabelList.do{|label, i|
-		OSCFunc({|msg| var val = msg.drop(1).unbubble.asInteger;env.epochFilterSwitch.put(i, val);subj.notify;forward_addr.sendMsg(*msg);p.ribbon.idleOffFunc.value;p.ribbon.idleRoutine.reset.play;}, '/sonify/filter/epoch/'++label);
+		OSCFunc({|msg| var val = msg.drop(1).unbubble.asInteger;env.epochFilterSwitch.put(i, val);subj.notify;forward_addr.sendMsg(*msg);p.ribbon.idleOffFunc.value;p.ribbon.idleRoutine.stop.reset.play;}, '/sonify/filter/epoch/'++label);
 	};
 	OSCFunc({|msg| var val = msg.drop(1).unbubble;forward_addr.sendMsg(msg);forward_addr.sendMsg(*msg);}, '/sonify/colorby/epoch');
 };
