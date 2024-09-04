@@ -85,7 +85,7 @@ var e = Environment.with(
 			// chain = PV_BrickWall(chain, 0.016);
 			// chain = PV_Freeze(chain, ToggleFF.ar(Impulse.ar(dur.reciprocal, -0.08)).poll);
 			sig = IFFT(chain);
-			sig = XFade2.ar(sig, Convolution.ar(sig, [20, 10, -2].asSpec.map(data16d[8]).dbamp*kernel_sig, 2.pow(12)), [conv_mix, (conv_mix.neg)]+0.3) ;
+			sig = XFade2.ar(sig, Convolution.ar(sig, [16, 10, -2].asSpec.map(data16d[8]).dbamp*kernel_sig, 2.pow(12)), [conv_mix, (conv_mix.neg)]+0.3) ;
 			Out.ar(out, (10.dbamp*sig.tanh)*(-12.dbamp));
 			// Out.ar(out, ([-10, 10, -2].asSpec.map(data16d[8]).dbamp*sig.tanh)*(-12.dbamp));
 		}).add;//(s,[\out, 0, \bufnum, b.bufnum, \soundBufnum, c.bufnum, \rate, 0.72]);
