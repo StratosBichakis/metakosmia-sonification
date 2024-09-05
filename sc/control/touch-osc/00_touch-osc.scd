@@ -44,7 +44,7 @@ touchOSC.use{ | env |
 	~epochLabelList.do{|label, i|
 		OSCFunc({|msg| var val = msg.drop(1).unbubble.asInteger;env.epochFilterSwitch.put(i, val);subj.notify;forward_addr.sendMsg(*msg);p.ribbon.idleOffFunc.value;p.ribbon.idleRoutine.stop.reset.play;}, '/sonify/filter/epoch/'++label);
 	};
-	OSCFunc({|msg| var val = msg.drop(1).unbubble;forward_addr.sendMsg(msg);forward_addr.sendMsg(*msg);p.ribbon.idleOffFunc.value;p.ribbon.idleRoutine.stop.reset.play;}, '/sonify/colorby/epoch');
+	OSCFunc({|msg| var val = msg.drop(1).unbubble;forward_addr.sendMsg(msg);forward_addr.sendMsg(*msg);}, '/sonify/colorby/epoch');
 };
 
 
