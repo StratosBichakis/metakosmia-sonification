@@ -16,17 +16,11 @@ td = Environment.with(
 	}),
 ).know_(true);
 
-
-
-
-
-// \addr->NetAddr("192.168.55.255", 10000),
-
-/*
+/* for live performance
 dataOut = Environment.with(
 	\obs->Observer(\dataOutId, Subject.topics[\idChange], { | state |
 		dataOut.addr.sendMsg('sonify/data', *state.[\preSpecVals]);
 	}),
-	\addr->NetAddr("192.168.111.255", 57120),
+	\addr->NetAddr("192.168.0.255", 57120),
 ).know_(true);
 */

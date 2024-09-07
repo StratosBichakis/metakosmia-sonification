@@ -2,9 +2,6 @@
 
 var force_init_path, dest_file_path;
 
-// d = nil;
-// d = d ? Environment.new;
-
 var d = Environment.new;
 d.know_(true);
 
