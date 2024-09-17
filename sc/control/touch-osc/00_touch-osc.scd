@@ -32,19 +32,52 @@ midiEnable.if{
 	}.play(AppClock);
 };
 
-Subject.addSubjectTopic(\filterChange, (todFilterSwitch: touchOSC.[\todFilterSwitch], epochFilterSwitch:touchOSC.[\epochFilterSwitch]));
+Subject.addSubjectTopic(\filterChange, 	(
+		todFilterSwitch:   touchOSC.[\todFilterSwitch], 
+		epochFilterSwitch: touchOSC.[\epochFilterSwitch]
+	)
+);
 
 thisProcess.openUDPPort(8000);
 
 touchOSC.use{ | env |
-	var subj = Subject.topics[\filterChange];
+	var subj = (type: \subj_filterChange);//Subject.topics[\filterChange];
+	var idleJob = {
+		var job = TimeOut.jobs[\idleWatch];
+		// "#".postln;
+		job.isRunning.if{
+			(type:\job_idleWatch, jobcmd:\procrastinate).play;	
+		}{
+			(type:\job_idleWatch, jobcmd:\reschedule).play;
+		};
+		(type: \subj_idleMode, isIdle: false).play;
+	};
+	
 	~todLabelList.do{|label, i|
-		OSCFunc({|msg| var val = msg.drop(1).unbubble.asInteger;env.todFilterSwitch.put(i, val);subj.notify;forward_addr.sendMsg(*msg);p.ribbon.idleOffFunc.value;p.ribbon.idleRoutine.stop.reset.play;}, '/sonify/filter/timeofday/'++label);
+		OSCFunc({| msg | 
+			var val = msg.drop(1).unbubble.asInteger;
+			env.todFilterSwitch.put(i, val);
+			// subj.notify; 
+			subj.play; 
+			idleJob.value;
+			forward_addr.sendMsg(*msg);
+			
+		}, '/sonify/filter/timeofday/'++label);
 	};
 	~epochLabelList.do{|label, i|
-		OSCFunc({|msg| var val = msg.drop(1).unbubble.asInteger;env.epochFilterSwitch.put(i, val);subj.notify;forward_addr.sendMsg(*msg);p.ribbon.idleOffFunc.value;p.ribbon.idleRoutine.stop.reset.play;}, '/sonify/filter/epoch/'++label);
+		OSCFunc({| msg | 
+			var val = msg.drop(1).unbubble.asInteger;
+			env.epochFilterSwitch.put(i, val);
+			// subj.notify;
+			subj.play; idleJob.value;
+			forward_addr.sendMsg(*msg);
+		}, '/sonify/filter/epoch/'++label);
 	};
-	OSCFunc({|msg| var val = msg.drop(1).unbubble;forward_addr.sendMsg(msg);forward_addr.sendMsg(*msg);}, '/sonify/colorby/epoch');
+	OSCFunc({| msg | 
+		var val = msg.drop(1).unbubble;
+		idleJob.value;
+		forward_addr.sendMsg(*msg);
+	}, '/sonify/colorby/epoch');
 };
 
 

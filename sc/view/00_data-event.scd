@@ -30,7 +30,6 @@ Event.addEventType(\biosphera_data, { |env|
 		
 		postSpecVals = vals.flat.collect{|item, i| (\klmxspec_++i).asSymbol.asSpec.map(item)};
 		
-	
 		p.buffers.dataBuf16d.setn(0, postSpecVals);
 	
 		s.sync;
